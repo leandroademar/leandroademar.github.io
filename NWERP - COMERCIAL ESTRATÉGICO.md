@@ -1,5 +1,5 @@
 
-  ![[ProdutoModulos.png]]
+  ![[./ProdutoModulos.png]]
 
 ## Visão Geral
 
