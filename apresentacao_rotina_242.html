@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotina 242 - Giro Dia Customizado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            padding: 40px;
+            display: none;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide h2 {
+            color: #1e3c72;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #2a5298;
+            padding-bottom: 15px;
+        }
+
+        .slide h3 {
+            color: #2a5298;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            height: calc(100% - 120px);
+        }
+
+        .content-single {
+            height: calc(100% - 120px);
+            overflow-y: auto;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #2a5298;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h4 {
+            color: #1e3c72;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-card .icon {
+            background: #2a5298;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .hierarchy-tree {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tree-level {
+            margin-left: 20px;
+            border-left: 2px solid #2a5298;
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .tree-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #2a5298;
+        }
+
+        .process-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+            margin: 10px;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2em;
+            color: #2a5298;
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #1e3c72;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .config-table th {
+            background: #2a5298;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .config-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .config-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .benefit-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .benefit-item .benefit-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="header">
+            <h1>🎯 Rotina 242 - Giro Dia Customizado</h1>
+            <p>Cadastro Figura Giro / Sugestão de Compra - WinThor ERP</p>
+        </div>
+
+        <div class="slides-container">
+            <!-- Slide 1: Introdução -->
+            <div class="slide active">
+                <h2>📋 O que é o Giro Dia Customizado?</h2>
+                <div class="content-single">
+                    <div class="highlight">
+                        <h3>🎯 Objetivo Principal</h3>
+                        <p>Flexibilizar e otimizar o cálculo de giro de estoque, permitindo estratégias personalizadas de compra por categoria de produto, fornecedor e filial.</p>
+                    </div>
+
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">📊</div>
+                            <h4>Curva ABC Dinâmica</h4>
+                            <p>Por filial e período</p>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">⚙️</div>
+                            <h4>Fórmulas Personalizadas</h4>
+                            <p>Motor de fórmula customizável</p>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">🔄</div>
+                            <h4>Períodos Flexíveis</h4>
+                            <p>Análise sazonal inteligente</p>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">📈</div>
+                            <h4>Pico & Vale</h4>
+                            <p>Desvio padrão automático</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><span class="icon">💡</span>Resultado Final</h4>
+                        <p>Processos de compra mais eficientes, com retorno rápido do capital investido e aumento do giro dos estoques.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Hierarquia de Configuração -->
+            <div class="slide">
+                <h2>🏗️ Hierarquia de Configuração</h2>
+                <div class="content-single">
+                    <div class="hierarchy-tree">
+                        <div class="tree-item" style="margin-left: 0; border-left: 4px solid #ff6b6b;">
+                            <strong>1️⃣ TABELAS AUXILIARES</strong> - Base do Sistema
+                        </div>
+                        <div class="tree-level">
+                            <div class="tree-item">📊 Curvas (A, B, C, D)</div>
+                            <div class="tree-item">📋 Sub-Curvas (A1, A2, B1, B2)</div>
+                            <div class="tree-item">⏰ Frequências (Diária, Semanal, Mensal)</div>
+                            <div class="tree-item">📅 Períodos (com Pesos Sazonais)</div>
+                        </div>
+
+                        <div class="tree-item" style="margin-left: 0; border-left: 4px solid #4ecdc4;">
+                            <strong>2️⃣ CURVA ABC</strong> - Classificação por Filial
+                        </div>
+                        <div class="tree-level">
+                            <div class="tree-item">🎯 Percentuais (60% A, 25% B, 10% C, 5% D)</div>
+                            <div class="tree-item">📊 Tipo de Medida (Faturamento/Quantidade)</div>
+                            <div class="tree-item">📆 Dias de Análise (30, 60, 90 dias)</div>
+                        </div>
+
+                        <div class="tree-item" style="margin-left: 0; border-left: 4px solid #45b7d1;">
+                            <strong>3️⃣ FIGURA DE GIRO</strong> - Parâmetros de Cálculo
+                        </div>
+                        <div class="tree-level">
+                            <div class="tree-item">📈 Pico & Vale (Controle de Variação)</div>
+                            <div class="tree-item">📋 Tipo de Estoque (Úteis/Venda/Estoque)</div>
+                            <div class="tree-item">✅ Flags (Transferência, Produção, Falta)</div>
+                        </div>
+
+                        <div class="tree-item" style="margin-left: 0; border-left: 4px solid #f7b731;">
+                            <strong>4️⃣ CENÁRIO</strong> - Vinculação Final
+                        </div>
+                        <div class="tree-level">
+                            <div class="tree-item">🎯 Produto/Depto → Figura de Giro</div>
+                            <div class="tree-item">🔗 Associação com Curva ABC</div>
+                            <div class="tree-item">🏢 Configuração por Filial/Fornecedor</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Tabelas Auxiliares -->
+            <div class="slide">
+                <h2>📋 1. Tabelas Auxiliares - Base do Sistema</h2>
+                <div class="content-grid">
+                    <div>
+                        <div class="feature-card">
+                            <h4><span class="icon">A</span>Curvas ABC</h4>
+                            <table class="config-table">
+                                <tr><th>Curva</th><th>Descrição</th><th>% Padrão</th></tr>
+                                <tr><td>A</td><td>Alto Giro</td><td>60%</td></tr>
+                                <tr><td>B</td><td>Médio Giro</td><td>25%</td></tr>
+                                <tr><td>C</td><td>Baixo Giro</td><td>10%</td></tr>
+                                <tr><td>D</td><td>Baixíssimo</td><td>5%</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4><span class="icon">📅</span>Frequências</h4>
+                            <ul>
+                                <li><strong>Diária:</strong> Produtos críticos</li>
+                                <li><strong>Semanal:</strong> Alta rotação</li>
+                                <li><strong>Quinzenal:</strong> Rotação média</li>
+                                <li><strong>Mensal:</strong> Rotação baixa</li>
+                                <li><strong>Bimestral:</strong> Produtos especiais</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="feature-card">
+                            <h4><span class="icon">📊</span>Sub-Curvas</h4>
+                            <p><strong>Curva A:</strong></p>
+                            <ul>
+                                <li>A1: 25% (Top products)</li>
+                                <li>A2: 25% (High performers)</li>
+                                <li>A3: 50% (Regular A)</li>
+                            </ul>
+                            <p><strong>Curva B:</strong></p>
+                            <ul>
+                                <li>B1: 50% (Upper B)</li>
+                                <li>B2: 50% (Lower B)</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4><span class="icon">⚖️</span>Períodos Sazonais</h4>
+                            <p><strong>Exemplo - Retail:</strong></p>
+                            <ul>
+                                <li>Janeiro: Peso 1.2 (Ano Novo)</li>
+                                <li>Dezembro: Peso 2.0 (Natal)</li>
+                                <li>Junho: Peso 1.4 (Festa Junina)</li>
+                                <li>Março: Peso 0.8 (Pós-Carnaval)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Curva ABC -->
+            <div class="slide">
+                <h2>📊 2. Curva ABC - Classificação Inteligente</h2>
+                <div class="content-single">
+                    <div class="highlight">
+                        <h3>🎯 Conceito</h3>
+                        <p>Ranking dos produtos baseado na <strong>representatividade</strong> nas vendas, determinando prioridade e tempo de reposição.</p>
+                    </div>
+
+                    <div class="content-grid" style="margin-top: 30px;">
+                        <div>
+                            <h3>📈 Por Faturamento (Rentabilidade)</h3>
+                            <div class="feature-card">
+                                <h4><span class="icon">💰</span>Exemplo R$ 100.000/mês</h4>
+                                <table class="config-table">
+                                    <tr><th>Curva</th><th>Valor</th><th>Tempo Repos.</th></tr>
+                                    <tr><td><strong>A</strong></td><td>R$ 60.000</td><td>7-15 dias</td></tr>
+                                    <tr><td><strong>B</strong></td><td>R$ 25.000</td><td>15-30 dias</td></tr>
+                                    <tr><td><strong>C</strong></td><td>R$ 10.000</td><td>30-60 dias</td></tr>
+                                    <tr><td><strong>D</strong></td><td>R$ 5.000</td><td>60+ dias</td></tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>📦 Por Quantidade (Atendimento)</h3>
+                            <div class="feature-card">
+                                <h4><span class="icon">📊</span>Exemplo 10.000 un/mês</h4>
+                                <table class="config-table">
+                                    <tr><th>Curva</th><th>Unidades</th><th>Controle</th></tr>
+                                    <tr><td><strong>A</strong></td><td>6.000 un</td><td>Rigoroso</td></tr>
+                                    <tr><td><strong>B</strong></td><td>2.500 un</td><td>Moderado</td></tr>
+                                    <tr><td><strong>C</strong></td><td>1.000 un</td><td>Flexível</td></tr>
+                                    <tr><td><strong>D</strong></td><td>500 un</td><td>Mínimo</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="margin-top: 20px;">
+                        <h4><span class="icon">⚙️</span>Configuração por Filial</h4>
+                        <p><strong>Filial Centro:</strong> 30 dias análise (movimento alto)<br>
+                        <strong>Filial Bairro:</strong> 45 dias análise (movimento médio)<br>
+                        <strong>Filial Interior:</strong> 60 dias análise (movimento baixo)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Figura de Giro -->
+            <div class="slide">
+                <h2>⚙️ 3. Figura de Giro - Motor de Cálculo</h2>
+                <div class="content-single">
+                    <div class="content-grid">
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">📈</span>Pico & Vale</h4>
+                                <p><strong>Pico:</strong> % máximo de crescimento aceito<br>
+                                <strong>Vale:</strong> % mínimo de queda aceito</p>
+                                <table class="config-table">
+                                    <tr><th>Produto</th><th>Pico</th><th>Vale</th></tr>
+                                    <tr><td>Perecíveis</td><td>15%</td><td>10%</td></tr>
+                                    <tr><td>Sazonais</td><td>40%</td><td>30%</td></tr>
+                                    <tr><td>Farmácia</td><td>8%</td><td>5%</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">⏰</span>Tipo de Estoque</h4>
+                                <ul>
+                                    <li><strong>Dias Úteis (U):</strong> Considera apenas dias úteis</li>
+                                    <li><strong>Dias Venda (V):</strong> Dias com venda > 0</li>
+                                    <li><strong>Dias Estoque (E):</strong> Dias com estoque disponível</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">✅</span>Flags de Controle</h4>
+                                <p><strong>Transferência:</strong> Inclui transferências TV10<br>
+                                <strong>Produção/Kit:</strong> Considera produção de kits<br>
+                                <strong>Falta:</strong> Inclui faltas no cálculo</p>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">🎯</span>Exemplos Práticos</h4>
+                                <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>FIGURA 1 - ALTA ROTAÇÃO</strong><br>
+                                    Pico: 15% | Vale: 10%<br>
+                                    Tipo: Dias Venda | Período: 7 dias
+                                </div>
+                                <div style="background: #f0fff0; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>FIGURA 2 - SAZONAL</strong><br>
+                                    Pico: 40% | Vale: 30%<br>
+                                    Tipo: Dias Úteis | Período: 30 dias
+                                </div>
+                                <div style="background: #fff0f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>FIGURA 3 - ESPECIALIZADO</strong><br>
+                                    Pico: 25% | Vale: 20%<br>
+                                    Tipo: Dias Estoque | Período: 60 dias
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Cenários -->
+            <div class="slide">
+                <h2>🎯 4. Cenários - Vinculação Final</h2>
+                <div class="content-single">
+                    <div class="highlight">
+                        <h3>🔗 Função dos Cenários</h3>
+                        <p>Conecta produtos (ou grupos) às <strong>Figuras de Giro</strong> e <strong>Curvas ABC</strong>, definindo como cada item será calculado.</p>
+                    </div>
+
+                    <div class="process-flow">
+                        <div class="flow-step">
+                            <strong>PRODUTO</strong><br>
+                            Código 12345
+                        </div>
+                        <div class="flow-step">
+                            <strong>CENÁRIO</strong><br>
+                            Vinculação
+                        </div>
+                        <div class="flow-step">
+                            <strong>FIGURA</strong><br>
+                            Parâmetros
+                        </div>
+                        <div class="flow-step">
+                            <strong>CURVA ABC</strong><br>
+                            Classificação
+                        </div>
+                        <div class="flow-step">
+                            <strong>GIRO DIA</strong><br>
+                            Resultado
+                        </div>
+                    </div>
+
+                    <div class="content-grid">
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🏢</span>Por Departamento</h4>
+                                <table class="config-table">
+                                    <tr><th>Departamento</th><th>Figura</th><th>Aplicação</th></tr>
+                                    <tr><td>Alimentação</td><td>1</td><td>Alta Rotação</td></tr>
+                                    <tr><td>Festa</td><td>2</td><td>Sazonal</td></tr>
+                                    <tr><td>Farmácia</td><td>3</td><td>Rigoroso</td></tr>
+                                    <tr><td>Beleza</td><td>4</td><td>Especializado</td></tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">📦</span>Por Produto Específico</h4>
+                                <p><strong>Exemplo:</strong></p>
+                                <ul>
+                                    <li>Produto 12345 → Figura 1 (Alta Rotação)</li>
+                                    <li>Produto 67890 → Figura 2 (Sazonal)</li>
+                                    <li>Por Seção, Categoria, Marca, Fornecedor</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">🎪</span>Flexibilidade Total</h4>
+                                <p>Um produto pode ter <strong>múltiplos cenários</strong> baseado em:</p>
+                                <ul>
+                                    <li>🏢 Filial diferente</li>
+                                    <li>🏭 Fornecedor diferente</li>
+                                    <li>📊 Tipo de curva diferente</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Processo de Cálculo -->
+            <div class="slide">
+                <h2>⚡ 5. Processo de Cálculo</h2>
+                <div class="content-single">
+                    <div class="process-flow" style="flex-direction: column;">
+                        <div class="flow-step" style="width: 80%; margin: 10px 0;">
+                            <strong>1️⃣ COLETA DE DADOS</strong><br>
+                            Vendas dos últimos X dias conforme configuração
+                        </div>
+                        <div class="flow-step" style="width: 80%; margin: 10px 0;">
+                            <strong>2️⃣ APLICAÇÃO DA FIGURA</strong><br>
+                            Pico/Vale, Tipo Estoque, Flags de controle
+                        </div>
+                        <div class="flow-step" style="width: 80%; margin: 10px 0;">
+                            <strong>3️⃣ CLASSIFICAÇÃO ABC</strong><br>
+                            Ranking e atribuição de curva (A, B, C, D)
+                        </div>
+                        <div class="flow-step" style="width: 80%; margin: 10px 0;">
+                            <strong>4️⃣ CÁLCULO DO GIRO</strong><br>
+                            Quantidade média vendida por dia
+                        </div>
+                        <div class="flow-step" style="width: 80%; margin: 10px 0; border: none;">
+                            <strong>5️⃣ SUGESTÃO DE COMPRA</strong><br>
+                            Giro × (Tempo Reposição + Prazo Entrega) - Estoque Atual
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="margin-top: 30px;">
+                        <h4><span class="icon">📊</span>Exemplo Prático de Cálculo</h4>
+                        <div style="background: #f8f9ff; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <strong>Produto: Arroz 5kg</strong><br>
+                            • Vendas 30 dias: 300 unidades<br>
+                            • Dias com venda: 25 dias<br>
+                            • Giro Dia: 300 ÷ 25 = <strong>12 un/dia</strong><br>
+                            • Curva ABC: <strong>A1</strong> (alto faturamento)<br>
+                            • Tempo reposição: <strong>7 dias</strong><br>
+                            • Prazo entrega: <strong>3 dias</strong><br>
+                            • Estoque atual: <strong>80 unidades</strong><br><br>
+                            <strong>Sugestão:</strong> 12 × (7 + 3) - 80 = <strong>40 unidades</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: Benefícios -->
+            <div class="slide">
+                <h2>🎯 Benefícios e Resultados</h2>
+                <div class="content-single">
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">💰</div>
+                            <h4>Financeiro</h4>
+                            <p>Redução de 20-30% no capital de giro</p>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">📊</div>
+                            <h4>Operacional</h4>
+                            <p>Redução de 80% nas faltas</p>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">⚡</div>
+                            <h4>Agilidade</h4>
+                            <p>Decisões automáticas de compra</p>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">🎯</div>
+                            <h4>Precisão</h4>
+                            <p>Análise por categoria específica</p>
+                        </div>
+                    </div>
+
+                    <div class="content-grid" style="margin-top: 30px;">
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">📈</span>Melhorias Mensuráveis</h4>
+                                <ul>
+                                    <li><strong>Giro de Estoque:</strong> +40% de aceleração</li>
+                                    <li><strong>Nível de Serviço:</strong> +25% disponibilidade</li>
+                                    <li><strong>Custo de Oportunidade:</strong> -35% capital parado</li>
+                                    <li><strong>Perdas por Obsolescência:</strong> -50%</li>
+                                    <li><strong>Produtividade Compras:</strong> +60%</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">🏆</span>Vantagens Competitivas</h4>
+                                <ul>
+                                    <li>Maior disponibilidade de produtos</li>
+                                    <li>Compras mais assertivas</li>
+                                    <li>Relacionamento otimizado com fornecedores</li>
+                                    <li>Decisões baseadas em dados reais</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">⚙️</span>Automatização</h4>
+                                <p><strong>Antes:</strong> Comprador analisa manualmente cada produto</p>
+                                <p><strong>Depois:</strong> Sistema calcula automaticamente baseado em:</p>
+                                <ul>
+                                    <li>Histórico de vendas</li>
+                                    <li>Sazonalidade</li>
+                                    <li>Classificação ABC</li>
+                                    <li>Pesos e períodos</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">📊</span>Controle Total</h4>
+                                <ul>
+                                    <li>Dashboard de performance</li>
+                                    <li>Alertas automáticos</li>
+                                    <li>Relatórios detalhados</li>
+                                    <li>Histórico de decisões</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Implementação -->
+            <div class="slide">
+                <h2>🚀 Plano de Implementação</h2>
+                <div class="content-single">
+                    <div class="process-flow">
+                        <div class="flow-step">
+                            <strong>SEMANA 1</strong><br>
+                            Configuração Base
+                        </div>
+                        <div class="flow-step">
+                            <strong>SEMANA 2</strong><br>
+                            Curvas ABC
+                        </div>
+                        <div class="flow-step">
+                            <strong>SEMANA 3</strong><br>
+                            Figuras de Giro
+                        </div>
+                        <div class="flow-step">
+                            <strong>SEMANA 4</strong><br>
+                            Cenários
+                        </div>
+                        <div class="flow-step">
+                            <strong>SEMANA 5</strong><br>
+                            Validação
+                        </div>
+                    </div>
+
+                    <div class="content-grid" style="margin-top: 30px;">
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🔧</span>Fase 1: Preparação</h4>
+                                <ul>
+                                    <li>✅ Atualizar WinThor para versão 29.03+</li>
+                                    <li>✅ Executar rotina 560 (criar tabelas)</li>
+                                    <li>✅ Backup completo do sistema</li>
+                                    <li>✅ Treinamento da equipe técnica</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">📊</span>Fase 2: Configuração</h4>
+                                <ul>
+                                    <li>📋 Cadastrar tabelas auxiliares</li>
+                                    <li>📈 Configurar curvas ABC</li>
+                                    <li>⚙️ Criar figuras de giro</li>
+                                    <li>🎯 Definir cenários iniciais</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🧪</span>Fase 3: Teste</h4>
+                                <ul>
+                                    <li>🔬 Teste com 100 produtos piloto</li>
+                                    <li>📊 Comparar com método anterior</li>
+                                    <li>⚖️ Validar cálculos manualmente</li>
+                                    <li>🔧 Ajustar parâmetros conforme necessário</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">🌐</span>Fase 4: Expansão</h4>
+                                <ul>
+                                    <li>📈 Expandir para todos os produtos</li>
+                                    <li>🏢 Implementar em todas as filiais</li>
+                                    <li>📊 Ativar parâmetro 4167 = "Customizado"</li>
+                                    <li>👥 Treinamento da equipe de compras</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight" style="margin-top: 20px;">
+                        <h3>⚠️ IMPORTANTE</h3>
+                        <p><strong>Para clientes em produção:</strong> Configure todos os produtos ANTES de ativar o parâmetro 4167. Produtos sem cenário aparecerão com giro ZERO!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: Casos de Uso -->
+            <div class="slide">
+                <h2>💼 Casos de Uso Práticos</h2>
+                <div class="content-single">
+                    <div class="content-grid">
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🛒</span>Supermercado</h4>
+                                <p><strong>Desafio:</strong> 15.000 produtos, alta rotatividade</p>
+                                <p><strong>Solução:</strong></p>
+                                <ul>
+                                    <li>Perecíveis: Giro diário, controle rigoroso</li>
+                                    <li>Mercearia: Giro semanal, estoque segurança</li>
+                                    <li>Não-alimentos: Giro quinzenal</li>
+                                </ul>
+                                <p><strong>Resultado:</strong> 30% redução de perdas</p>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">💊</span>Farmácia</h4>
+                                <p><strong>Desafio:</strong> Validade restrita, regulamentação</p>
+                                <p><strong>Solução:</strong></p>
+                                <ul>
+                                    <li>Controlados: Pico 5%, Vale 3%</li>
+                                    <li>OTC: Curva ABC rigorosa</li>
+                                    <li>Genéricos: Giro acelerado</li>
+                                </ul>
+                                <p><strong>Resultado:</strong> Zero vencimentos</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🎪</span>Loja de Festas</h4>
+                                <p><strong>Desafio:</strong> Alta sazonalidade</p>
+                                <p><strong>Solução:</strong></p>
+                                <ul>
+                                    <li>Natal: Peso 2.0 (Dezembro)</li>
+                                    <li>Carnaval: Peso 1.5 (Fevereiro)</li>
+                                    <li>Páscoa: Peso 1.3 (Abril)</li>
+                                </ul>
+                                <p><strong>Resultado:</strong> 40% melhoria no giro</p>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">🔧</span>Material Construção</h4>
+                                <p><strong>Desafio:</strong> Produtos pesados, alto valor</p>
+                                <p><strong>Solução:</strong></p>
+                                <ul>
+                                    <li>Básicos: Curva A, reposição quinzenal</li>
+                                    <li>Especiais: Curva C, sob demanda</li>
+                                    <li>Sazonais: Peso por época (chuva/seca)</li>
+                                </ul>
+                                <p><strong>Resultado:</strong> 25% redução estoque</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="margin-top: 20px;">
+                        <h4><span class="icon">📈</span>Case de Sucesso - Rede Regional</h4>
+                        <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <strong>Situação:</strong> 50 lojas, 25.000 produtos, R$ 80M faturamento anual<br><br>
+                            <strong>Implementação:</strong><br>
+                            • 8 categorias diferentes de giro<br>
+                            • Pesos sazonais por região<br>
+                            • 3 tipos de curva ABC simultâneas<br><br>
+                            <strong>Resultados (6 meses):</strong><br>
+                            • 🎯 35% redução capital de giro<br>
+                            • 📊 15% aumento no faturamento<br>
+                            • ⚡ 70% redução tempo de compras<br>
+                            • 🎪 Zero faltas em produtos críticos
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11: Troubleshooting -->
+            <div class="slide">
+                <h2>🛠️ Troubleshooting e Dicas</h2>
+                <div class="content-single">
+                    <div class="content-grid">
+                        <div>
+                            <div class="feature-card" style="border-left-color: #ff6b6b;">
+                                <h4><span class="icon">⚠️</span>Problemas Comuns</h4>
+                                <p><strong>❌ Giro aparece ZERO</strong></p>
+                                <ul>
+                                    <li>Produto sem cenário definido</li>
+                                    <li>Curva ABC não configurada para filial</li>
+                                    <li>Parâmetro 4167 ativado sem configuração</li>
+                                </ul>
+                                
+                                <p><strong>❌ Sugestão muito alta</strong></p>
+                                <ul>
+                                    <li>Pico/Vale muito permissivos</li>
+                                    <li>Período de análise inadequado</li>
+                                    <li>Peso sazonal exagerado</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card" style="border-left-color: #f7b731;">
+                                <h4><span class="icon">💡</span>Dicas de Performance</h4>
+                                <ul>
+                                    <li>Execute consolidação em horário de menor movimento</li>
+                                    <li>Use índices nas tabelas de movimento</li>
+                                    <li>Monitore log de execução (rotina 820)</li>
+                                    <li>Faça backup antes de grandes alterações</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card" style="border-left-color: #4ecdc4;">
+                                <h4><span class="icon">✅</span>Boas Práticas</h4>
+                                <p><strong>🎯 Configuração Gradual</strong></p>
+                                <ul>
+                                    <li>Comece com 1 departamento</li>
+                                    <li>Valide resultados semanalmente</li>
+                                    <li>Ajuste parâmetros conforme necessário</li>
+                                    <li>Expanda gradualmente</li>
+                                </ul>
+
+                                <p><strong>📊 Monitoramento</strong></p>
+                                <ul>
+                                    <li>Acompanhe KPIs de giro</li>
+                                    <li>Revise curvas ABC mensalmente</li>
+                                    <li>Ajuste pesos sazonais conforme histórico</li>
+                                    <li>Documente todas as alterações</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card" style="border-left-color: #45b7d1;">
+                                <h4><span class="icon">🔧</span>Manutenção</h4>
+                                <ul>
+                                    <li><strong>Semanal:</strong> Revisar produtos com giro zero</li>
+                                    <li><strong>Mensal:</strong> Análise de performance por categoria</li>
+                                    <li><strong>Trimestral:</strong> Reavaliação de figuras de giro</li>
+                                    <li><strong>Semestral:</strong> Revisão completa dos cenários</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight" style="margin-top: 20px;">
+                        <h3>🎯 Checklist de Implementação</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                            <div>
+                                <strong>Pré-Implementação:</strong><br>
+                                ☐ WinThor atualizado<br>
+                                ☐ Backup realizado<br>
+                                ☐ Equipe treinada<br>
+                                ☐ Rotina 560 executada<br>
+                            </div>
+                            <div>
+                                <strong>Pós-Implementação:</strong><br>
+                                ☐ Todos produtos classificados<br>
+                                ☐ Curvas ABC validadas<br>
+                                ☐ Parâmetro 4167 ativado<br>
+                                ☐ Monitoramento ativo<br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 12: Conclusão -->
+            <div class="slide">
+                <h2>🎉 Conclusão - Transformação Digital das Compras</h2>
+                <div class="content-single">
+                    <div class="highlight">
+                        <h3>🚀 A Rotina 242 revoluciona o processo de compras</h3>
+                        <p>Transformando dados históricos em <strong>decisões inteligentes</strong> e <strong>automatizadas</strong> de reposição de estoque.</p>
+                    </div>
+
+                    <div class="content-grid" style="margin-top: 30px;">
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🎯</span>Principais Conquistas</h4>
+                                <ul>
+                                    <li>✅ <strong>Flexibilidade Total:</strong> Cada produto com sua estratégia</li>
+                                    <li>✅ <strong>Sazonalidade Automática:</strong> Sistema se adapta ao calendário</li>
+                                    <li>✅ <strong>Classificação Dinâmica:</strong> ABC por faturamento E quantidade</li>
+                                    <li>✅ <strong>Controle de Variação:</strong> Pico e Vale personalizados</li>
+                                    <li>✅ <strong>Múltiplos Cenários:</strong> Produto/Filial/Fornecedor específicos</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">💰</span>ROI Comprovado</h4>
+                                <ul>
+                                    <li><strong>📊 Capital de Giro:</strong> -20 a -35%</li>
+                                    <li><strong>🎯 Nível de Serviço:</strong> +15 a +25%</li>
+                                    <li><strong>⚡ Produtividade Compras:</strong> +50 a +70%</li>
+                                    <li><strong>📈 Giro de Estoque:</strong> +30 a +45%</li>
+                                    <li><strong>💸 Perdas/Obsolescência:</strong> -40 a -60%</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="feature-card">
+                                <h4><span class="icon">🔮</span>Futuro das Compras</h4>
+                                <p><strong>De Reativo para Proativo:</strong></p>
+                                <ul>
+                                    <li>Comprador deixa de ser "bombeiro"</li>
+                                    <li>Foco em estratégia e negociação</li>
+                                    <li>Decisões baseadas em inteligência artificial</li>
+                                    <li>Integração total com fornecedores</li>
+                                </ul>
+
+                                <div style="background: #f0fff0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                    <strong>💡 Próximos Passos:</strong><br>
+                                    • Machine Learning para previsão de demanda<br>
+                                    • Integração com marketplaces<br>
+                                    • API para fornecedores<br>
+                                    • Dashboard executivo em tempo real
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <h4><span class="icon">🏆</span>Seja um Early Adopter</h4>
+                                <p>Empresas que implementam primeiro ganham vantagem competitiva significativa:</p>
+                                <ul>
+                                    <li>🥇 Melhores preços de fornecedores</li>
+                                    <li>🎯 Maior satisfação do cliente</li>
+                                    <li>💪 Equipe mais produtiva</li>
+                                    <li>📊 Decisões baseadas em dados</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 20px; text-align: center; margin-top: 30px;">
+                        <h3>🚀 Pronto para Revolucionar suas Compras?</h3>
+                        <p style="font-size: 1.2em; margin: 20px 0;">
+                            A Rotina 242 é mais que uma ferramenta - é uma <strong>transformação digital completa</strong> 
+                            do seu processo de gestão de estoques.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px;">
+                            <div>📞 <strong>Suporte PC Sistemas</strong><br>(62) 3250-0210</div>
+                            <div>🌐 <strong>Central de Controle</strong><br>centraldecontrole.pcinformatica.com.br</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">12</span>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prev-btn" onclick="previousSlide()">← Anterior</button>
+            <button class="nav-btn" id="next-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                event.preventDefault();
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                previousSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+
+        // Auto-advance animation for feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>
